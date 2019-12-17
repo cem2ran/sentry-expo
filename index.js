@@ -38,17 +38,19 @@ class ExpoIntegration {
       expoVersion: Constants.expoVersion,
     });
 
-    if (Constants.manifest.releaseChannel) {
-      Sentry.setTag('expoReleaseChannel', Constants.manifest.releaseChannel);
-    }
-    if (Constants.manifest.version) {
-      Sentry.setTag('expoAppVersion', Constants.manifest.version);
-    }
-    if (Constants.manifest.publishedTime) {
-      Sentry.setTag('expoAppPublishedTime', Constants.manifest.publishedTime);
-    }
-    if (Constants.sdkVersion) {
-      Sentry.setTag('expoSdkVersion', Constants.sdkVersion);
+    if (Constants.manifest) {
+      if (Constants.manifest.releaseChannel) {
+        Sentry.setTag('expoReleaseChannel', Constants.manifest.releaseChannel);
+      }
+      if (Constants.manifest.version) {
+        Sentry.setTag('expoAppVersion', Constants.manifest.version);
+      }
+      if (Constants.manifest.publishedTime) {
+        Sentry.setTag('expoAppPublishedTime', Constants.manifest.publishedTime);
+      }
+      if (Constants.sdkVersion) {
+        Sentry.setTag('expoSdkVersion', Constants.sdkVersion);
+      }
     }
 
     const defaultHandler =
@@ -144,7 +146,15 @@ export const init = (options = {}) => {
     }),
   ];
 
-  const release = Constants.manifest.revisionId || 'UNVERSIONED';
+  let release = 'UNVERSIONED';
+
+  if (Constants.manifest) {
+    if (Constants.manifest.revisionId) {
+      release = Constants.manifest.revisionId;
+    }
+  } else {
+    release = 'BARE';
+  }
 
   // Bail out automatically if the app isn't deployed
   if (release === 'UNVERSIONED' && !options.enableInExpoDevelopment) {
